@@ -47,8 +47,13 @@ function App() {
   const activeConfig = config || staticConfig.data;
 
   // Initialize audio with config settings
+  const rawAudio = activeConfig?.audio?.src || "/audio/fulfilling-humming.mp3";
+  const audioSrc = rawAudio.startsWith("http")
+    ? rawAudio
+    : `${import.meta.env.BASE_URL}${rawAudio.replace(/^\//, "")}`;
+
   const audioControls = useAudio({
-    src: activeConfig?.audio?.src || "/audio/fulfilling-humming.mp3",
+    src: audioSrc,
     loop: activeConfig?.audio?.loop !== false,
   });
 

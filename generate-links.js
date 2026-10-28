@@ -23,7 +23,7 @@ function generateInvitationLink(
 
 // ===== CONFIGURACIÓN =====
 const INVITATION_UID = "eva-y-andres-2026";
-const BASE_URL = "http://localhost:5173";
+const BASE_URL = "https://fabiodrizzt.github.io/invitacion-eva-y-andres";
 
 // Lista de invitados
 const guestList = [

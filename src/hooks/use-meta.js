@@ -54,6 +54,11 @@ export function useMeta(config) {
       favicon.setAttribute("rel", "icon");
       document.head.appendChild(favicon);
     }
-    favicon.setAttribute("href", config.favicon);
+    const faviconUrl = config.favicon
+      ? config.favicon.startsWith("http")
+        ? config.favicon
+        : `${import.meta.env.BASE_URL}${config.favicon.replace(/^\//, "")}`
+      : `${import.meta.env.BASE_URL}favicon.svg`;
+    favicon.setAttribute("href", faviconUrl);
   }, [config]);
 }
