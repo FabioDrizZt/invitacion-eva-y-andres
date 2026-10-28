@@ -1,187 +1,105 @@
 import { motion, AnimatePresence } from "motion/react";
 import Confetti from "@/components/ui/confetti";
-import Marquee from "@/components/ui/marquee";
 import { cn } from "@/lib/utils";
 import {
   Calendar,
-  Clock,
-  ChevronDown,
   User,
   MessageCircle,
-  Send,
   CheckCircle,
   XCircle,
-  HelpCircle,
-  Loader2,
   AlertCircle,
+  Users,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { formatEventDate } from "@/lib/format-event-date";
-import { useInvitation } from "@/features/invitation";
-import { fetchWishes, createWish, checkWishSubmitted } from "@/services/api";
+import { useState, useEffect } from "react";
 import { getGuestName } from "@/lib/invitation-storage";
-import { useMotionPreset, staggerContainer, stagger } from "@/lib/motion";
+import { useMotionPreset, staggerContainer } from "@/lib/motion";
 import { useTranslation } from "@/lib/i18n";
 
+// Número de WhatsApp de los novios (sin espacios ni guiones)
+const WHATSAPP_NUMBER = "5493885180725";
+
 export default function Wishes() {
-  const { uid } = useInvitation();
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const fade = useMotionPreset("fade");
   const fadeUp = useMotionPreset("fadeUp");
   const scaleIn = useMotionPreset("scaleIn");
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [newWish, setNewWish] = useState("");
-  const [guestName, setGuestName] = useState("");
-  const [attendance, setAttendance] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const [isNameFromInvitation, setIsNameFromInvitation] = useState(false);
-  const [hasSubmittedWish, setHasSubmittedWish] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [selectedWish, setSelectedWish] = useState(null);
 
-  // Get guest name from localStorage
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [guestName, setGuestName] = useState("");
+  const [isNameFromInvitation, setIsNameFromInvitation] = useState(false);
+  const [attendance, setAttendance] = useState(""); // "ATTENDING" | "NOT_ATTENDING"
+  const [message, setMessage] = useState("");
+  const [confirmGuests, setConfirmGuests] = useState(false); // checkbox obligatorio
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Cantidad de invitados desde query param ?invitados=X, default 1
+  const [guestCount, setGuestCount] = useState(1);
+
   useEffect(() => {
-    const storedGuestName = getGuestName();
-    if (storedGuestName) {
-      setGuestName(storedGuestName);
+    const params = new URLSearchParams(window.location.search);
+    const raw = parseInt(params.get("invitados") || params.get("guests") || "1", 10);
+    setGuestCount(isNaN(raw) || raw < 1 ? 1 : raw);
+  }, []);
+
+  // Nombre del invitado desde localStorage (si viene de link personalizado)
+  useEffect(() => {
+    const storedName = getGuestName();
+    if (storedName) {
+      setGuestName(storedName);
       setIsNameFromInvitation(true);
     }
   }, []);
 
-  // Check if guest has already submitted a wish
-  useEffect(() => {
-    const checkSubmissionStatus = async () => {
-      if (uid && guestName && isNameFromInvitation) {
-        try {
-          const response = await checkWishSubmitted(uid, guestName);
-          if (response.success && response.hasSubmitted) {
-            setHasSubmittedWish(true);
-          }
-        } catch (error) {
-          console.error("Error checking wish status:", error);
-        }
-      }
-    };
+  const isAttending = attendance === "ATTENDING";
+  const isNotAttending = attendance === "NOT_ATTENDING";
 
-    checkSubmissionStatus();
-  }, [uid, guestName, isNameFromInvitation]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-
-  const options = [
-    { value: "ATTENDING", label: t("wishes.attending") },
-    { value: "NOT_ATTENDING", label: t("wishes.notAttending") },
-    { value: "MAYBE", label: t("wishes.maybe") },
-  ];
-
-  // Fetch wishes using React Query
-  const {
-    data: wishes = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["wishes", uid],
-    queryFn: async () => {
-      const response = await fetchWishes(uid);
-      if (response.success) {
-        return response.data;
-      }
-      throw new Error(t("wishes.failedLoad"));
-    },
-    enabled: !!uid,
-    staleTime: 30 * 1000,
-  });
-
-  // Mutation for creating wishes
-  const createWishMutation = useMutation({
-    mutationFn: (wishData) => createWish(uid, wishData),
-    onSuccess: (response) => {
-      if (response.success) {
-        queryClient.setQueryData(["wishes", uid], (old = []) => [
-          response.data,
-          ...old,
-        ]);
-        setNewWish("");
-        setAttendance("");
-        setHasSubmittedWish(true);
-        setErrorMessage("");
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
-      }
-    },
-    onError: (err) => {
-      console.error("Error submitting wish:", err);
-      if (
-        err.code === "DUPLICATE_WISH" ||
-        err.message?.includes("already submitted")
-      ) {
-        setHasSubmittedWish(true);
-        setErrorMessage("");
-      } else {
-        setErrorMessage(t("wishes.failedSubmit"));
-        setTimeout(() => setErrorMessage(""), 5000);
-      }
-    },
-  });
-
-  const handleSubmitWish = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!newWish.trim() || !guestName.trim()) return;
 
-    if (!uid) {
-      setErrorMessage(t("wishes.invitationNotFound"));
-      setTimeout(() => setErrorMessage(""), 5000);
+    if (!guestName.trim()) {
+      setErrorMessage(t("wishes.errorName"));
+      return;
+    }
+    if (!attendance) {
+      setErrorMessage(t("wishes.errorAttendance"));
+      return;
+    }
+    if (isAttending && !confirmGuests) {
+      setErrorMessage(t("wishes.errorCheckbox"));
       return;
     }
 
     setErrorMessage("");
 
-    createWishMutation.mutate({
-      name: guestName.trim(),
-      message: newWish.trim(),
-      attendance: attendance || "MAYBE",
-    });
-  };
-
-  const getAttendanceIcon = (status) => {
-    const normalizedStatus = status?.toLowerCase();
-    switch (normalizedStatus) {
-      case "attending":
-        return <CheckCircle className={cn("w-4 h-4 text-emerald-500")} />;
-      case "not_attending":
-      case "not-attending":
-        return <XCircle className={cn("w-4 h-4 text-sky-400")} />;
-      case "maybe":
-        return <HelpCircle className={cn("w-4 h-4 text-amber-500")} />;
-      default:
-        return null;
+    // Armar mensaje de WhatsApp
+    let waText = "";
+    if (isAttending) {
+      waText =
+        `¡Hola! Soy ${guestName.trim()} y confirmo mi asistencia a la boda de Eva y Andrés. ` +
+        `Voy a asistir con ${guestCount} ${guestCount === 1 ? "persona" : "personas"}.`;
+    } else {
+      waText =
+        `¡Hola! Soy ${guestName.trim()}. Lamentablemente no voy a poder asistir a la boda de Eva y Andrés.`;
     }
+
+    if (message.trim()) {
+      waText += ` ${message.trim()}`;
+    }
+
+    const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+
+    // Mostrar confetti y estado de éxito antes de abrir WhatsApp
+    setShowConfetti(true);
+    setHasSubmitted(true);
+    setTimeout(() => setShowConfetti(false), 4000);
+
+    // Abrir WhatsApp en nueva pestaña
+    window.open(waUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
     <>
-      <section
-        id="wishes"
-        className={cn("min-h-screen relative overflow-hidden")}
-      >
+      <section id="wishes" className={cn("min-h-screen relative overflow-hidden")}>
         <Confetti show={showConfetti} />
         <div className={cn("container mx-auto px-4 py-20 relative z-10")}>
           {/* Section Header */}
@@ -216,295 +134,18 @@ export default function Wishes() {
             </motion.div>
           </motion.div>
 
-          {/* Wishes List */}
-          <div className={cn("max-w-2xl mx-auto space-y-6")}>
-            {isLoading && (
-              <div className={cn("flex items-center justify-center py-12")}>
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: 44 }}
-                  transition={{
-                    duration: 1.2,
-                    ease: "easeOut",
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                  }}
-                  className={cn("h-px bg-sky-500")}
-                />
-              </div>
-            )}
-
-            {error && !isLoading && (
-              <div className={cn("text-center py-8")}>
-                <p className={cn("text-sky-600")}>{error}</p>
-              </div>
-            )}
-
-            {!isLoading && !error && (!wishes || wishes.length === 0) && (
-              <div className={cn("text-center py-12")}>
-                <MessageCircle
-                  className={cn("w-12 h-12 text-sky-300 mx-auto mb-4")}
-                />
-                <p className={cn("text-sky-600")}>
-                  {t("wishes.emptyState")}
-                </p>
-              </div>
-            )}
-
-            {!isLoading && wishes && wishes.length > 0 && (
-              <AnimatePresence>
-                <Marquee
-                  pauseOnHover={true}
-                  repeat={2}
-                  className={cn("[--duration:60s] [--gap:1rem] py-2")}
-                >
-                  {wishes.map((wish, index) => (
-                    <motion.div
-                      key={wish.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={stagger(index, 0.1)}
-                      className={cn(
-                        "group relative w-[300px] h-[160px] flex-shrink-0 cursor-pointer",
-                      )}
-                      onClick={() => setSelectedWish(wish)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {/* Background gradient */}
-                      <div
-                        className={cn(
-                          "absolute inset-0 bg-gradient-to-br from-sky-100/60 to-blue-100/60 rounded-2xl transform transition-transform group-hover:scale-[1.02] duration-300",
-                        )}
-                      />
-
-                      {/* Card content */}
-                      <div
-                        className={cn(
-                          "relative h-full backdrop-blur-sm bg-white/90 p-4 rounded-2xl border border-sky-100 shadow-md flex flex-col",
-                        )}
-                      >
-                        {/* Header */}
-                        <div className={cn("flex items-center space-x-3 mb-3")}>
-                          {/* Avatar */}
-                          <div className={cn("flex-shrink-0")}>
-                            <div
-                              className={cn(
-                                "w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-sm font-semibold shadow-sm",
-                              )}
-                            >
-                              {wish.name[0]?.toUpperCase()}
-                            </div>
-                          </div>
-
-                          {/* Name, Time, and Attendance */}
-                          <div className={cn("flex-1 min-w-0")}>
-                            <div className={cn("flex items-center space-x-2")}>
-                              <h4
-                                className={cn(
-                                  "font-semibold text-sky-800 text-sm truncate max-w-[140px]",
-                                )}
-                              >
-                                {wish.name}
-                              </h4>
-                              {getAttendanceIcon(wish.attendance)}
-                            </div>
-                            <div
-                              className={cn(
-                                "flex items-center space-x-1 text-sky-500 text-xs mt-0.5",
-                              )}
-                            >
-                              <Clock className={cn("w-3 h-3 flex-shrink-0 text-sky-400")} />
-                              <time className={cn("truncate")}>
-                                {formatEventDate(
-                                  wish.created_at,
-                                  "short",
-                                  true,
-                                )}
-                              </time>
-                            </div>
-                          </div>
-
-                          {/* New badge */}
-                          {Date.now() - new Date(wish.created_at).getTime() <
-                            3600000 && (
-                            <span
-                              className={cn(
-                                "flex-shrink-0 px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 text-xs font-medium",
-                              )}
-                            >
-                              Nuevo
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Message */}
-                        <div className={cn("flex-1 overflow-hidden")}>
-                          <p
-                            className={cn(
-                              "text-sky-700 text-sm leading-relaxed line-clamp-3",
-                            )}
-                          >
-                            {wish.message}
-                          </p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </Marquee>
-              </AnimatePresence>
-            )}
-          </div>
-
-          {/* Wish Detail Modal */}
-          <AnimatePresence>
-            {selectedWish && (
-              <>
-                {/* Backdrop */}
-                <motion.div
-                  variants={fade}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  onClick={() => setSelectedWish(null)}
-                  className={cn(
-                    "fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4",
-                  )}
-                >
-                  {/* Modal Card */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                    onClick={(e) => e.stopPropagation()}
-                    className={cn(
-                      "bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-sky-100",
-                    )}
-                  >
-                    {/* Modal Header */}
-                    <div
-                      className={cn(
-                        "sticky top-0 bg-gradient-to-br from-sky-50 to-blue-50 p-6 border-b border-sky-100",
-                      )}
-                    >
-                      <div className={cn("flex items-center justify-between")}>
-                        <div className={cn("flex items-center space-x-4")}>
-                          {/* Avatar */}
-                          <div
-                            className={cn(
-                              "w-16 h-16 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-2xl font-semibold shadow-lg",
-                            )}
-                          >
-                            {selectedWish.name[0]?.toUpperCase()}
-                          </div>
-
-                          {/* Name and Time */}
-                          <div>
-                            <h3
-                              className={cn(
-                                "text-2xl font-serif text-sky-800 font-semibold",
-                              )}
-                            >
-                              {selectedWish.name}
-                            </h3>
-                            <div
-                              className={cn(
-                                "flex items-center space-x-2 text-sky-600 text-sm mt-1",
-                              )}
-                            >
-                              <Clock className={cn("w-4 h-4 text-sky-400")} />
-                              <time>
-                                {formatEventDate(
-                                  selectedWish.created_at,
-                                  "short",
-                                  true,
-                                )}
-                              </time>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Close Button */}
-                        <button
-                          onClick={() => setSelectedWish(null)}
-                          className={cn(
-                            "p-2 rounded-full hover:bg-white/50 transition-colors",
-                          )}
-                          aria-label={t("wishes.close")}
-                        >
-                          <XCircle
-                            className={cn(
-                              "w-6 h-6 text-sky-400 hover:text-sky-600",
-                            )}
-                          />
-                        </button>
-                      </div>
-
-                      {/* Attendance Badge */}
-                      {selectedWish.attendance && (
-                        <div className={cn("mt-4 flex items-center space-x-2")}>
-                          {getAttendanceIcon(selectedWish.attendance)}
-                          <span
-                            className={cn("text-sm font-medium text-sky-700")}
-                          >
-                            {selectedWish.attendance === "ATTENDING" &&
-                              t("wishes.attending")}
-                            {selectedWish.attendance === "NOT_ATTENDING" &&
-                              t("wishes.notAttending")}
-                            {selectedWish.attendance === "MAYBE" &&
-                              t("wishes.maybe")}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Modal Body - Full Message */}
-                    <div className={cn("p-6")}>
-                      <div className={cn("prose prose-sky max-w-none")}>
-                        <p
-                          className={cn(
-                            "text-sky-800 text-base leading-relaxed whitespace-pre-wrap",
-                          )}
-                        >
-                          {selectedWish.message}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Modal Footer */}
-                    <div
-                      className={cn(
-                        "sticky bottom-0 bg-sky-50/60 p-4 border-t border-sky-100 flex justify-end",
-                      )}
-                    >
-                      <button
-                        onClick={() => setSelectedWish(null)}
-                        className={cn(
-                          "px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-medium transition-colors shadow-sm",
-                        )}
-                      >
-                        {t("wishes.close")}
-                      </button>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-
-          {/* Wishes Form */}
+          {/* Form */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className={cn("max-w-2xl mx-auto mt-12")}
+            className={cn("max-w-2xl mx-auto mt-4")}
           >
-            {hasSubmittedWish ? (
+            {hasSubmitted ? (
+              /* Estado de éxito */
               <div
                 className={cn(
-                  "backdrop-blur-sm bg-white/85 p-8 rounded-2xl border border-sky-100 shadow-lg text-center",
+                  "backdrop-blur-sm bg-white/85 p-8 rounded-2xl border border-sky-100 shadow-lg text-center"
                 )}
               >
                 <div className={cn("flex flex-col items-center space-y-4")}>
@@ -512,19 +153,25 @@ export default function Wishes() {
                   <h3 className={cn("text-2xl font-serif text-sky-800")}>
                     {t("wishes.thankYou")}
                   </h3>
-                  <p className={cn("text-sky-700")}>
-                    {t("wishes.successMessage")}
-                  </p>
+                  <p className={cn("text-sky-700")}>{t("wishes.successMessage")}</p>
                   <p className={cn("text-sm text-sky-500 italic")}>
-                    {t("wishes.oneMessageLimit")}
+                    {t("wishes.whatsappNote")}
                   </p>
+                  <button
+                    onClick={() => setHasSubmitted(false)}
+                    className={cn(
+                      "mt-4 px-6 py-2 rounded-xl border border-sky-300 text-sky-600 hover:bg-sky-50 transition-colors text-sm"
+                    )}
+                  >
+                    {t("wishes.sendAnother")}
+                  </button>
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmitWish} className={cn("relative")}>
+              <form onSubmit={handleSubmit} className={cn("relative")}>
                 <div
                   className={cn(
-                    "backdrop-blur-sm bg-white/85 p-6 rounded-2xl border border-sky-100 shadow-lg",
+                    "backdrop-blur-sm bg-white/85 p-6 rounded-2xl border border-sky-100 shadow-lg space-y-5"
                   )}
                 >
                   {/* Error Message */}
@@ -535,27 +182,19 @@ export default function Wishes() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         className={cn(
-                          "mb-4 p-4 rounded-xl bg-sky-50 border border-sky-200 flex items-start space-x-3",
+                          "p-4 rounded-xl bg-sky-50 border border-sky-200 flex items-start space-x-3"
                         )}
                       >
                         <AlertCircle
-                          className={cn(
-                            "w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5",
-                          )}
+                          className={cn("w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5")}
                         />
-                        <div className={cn("flex-1")}>
-                          <p
-                            className={cn("text-sm text-sky-800 font-medium")}
-                          >
-                            {errorMessage}
-                          </p>
-                        </div>
+                        <p className={cn("text-sm text-sky-800 font-medium flex-1")}>
+                          {errorMessage}
+                        </p>
                         <button
                           type="button"
                           onClick={() => setErrorMessage("")}
-                          className={cn(
-                            "text-sky-400 hover:text-sky-600 transition-colors",
-                          )}
+                          className={cn("text-sky-400 hover:text-sky-600 transition-colors")}
                         >
                           <XCircle className={cn("w-4 h-4")} />
                         </button>
@@ -563,196 +202,190 @@ export default function Wishes() {
                     )}
                   </AnimatePresence>
 
-                  <div className={cn("space-y-4")}>
-                    {/* Name Input */}
-                    <div className={cn("space-y-2")}>
-                      <div
-                        className={cn(
-                          "flex items-center space-x-2 text-sky-600 text-sm mb-1 font-medium",
-                        )}
-                      >
-                        <User className={cn("w-4 h-4 text-sky-500")} />
-                        <label htmlFor="guest-name">{t("wishes.nameLabel")}</label>
-                      </div>
-                      <input
-                        type="text"
-                        id="guest-name"
-                        name="guestName"
-                        autoComplete="name"
-                        placeholder={t("wishes.namePlaceholder")}
-                        value={guestName}
-                        onChange={(e) => {
-                          setGuestName(e.target.value);
-                          setIsNameFromInvitation(false);
-                        }}
-                        disabled={isNameFromInvitation}
-                        className={cn(
-                          "w-full px-4 py-2.5 rounded-xl border transition-all duration-200 text-sky-800 placeholder-sky-400",
-                          isNameFromInvitation
-                            ? "bg-sky-50/50 border-sky-200 cursor-not-allowed opacity-80"
-                            : "bg-white/70 border-sky-200 focus:border-sky-400 focus:ring focus:ring-sky-200 focus:ring-opacity-50",
-                        )}
-                        required
-                      />
-                    </div>
-
-                    {/* Attendance Dropdown */}
-                    <motion.div
-                      variants={fadeUp}
-                      initial="hidden"
-                      animate="visible"
-                      className={cn("space-y-2 relative")}
-                      ref={dropdownRef}
+                  {/* Nombre */}
+                  <div className={cn("space-y-2")}>
+                    <div
+                      className={cn(
+                        "flex items-center space-x-2 text-sky-600 text-sm font-medium"
+                      )}
                     >
-                      <div
-                        className={cn(
-                          "flex items-center space-x-2 text-sky-600 text-sm mb-1 font-medium",
-                        )}
-                      >
-                        <Calendar className={cn("w-4 h-4 text-sky-500")} />
-                        <label htmlFor="attendance-select">
-                          {t("wishes.attendanceLabel")}
-                        </label>
-                      </div>
+                      <User className={cn("w-4 h-4 text-sky-500")} />
+                      <label htmlFor="guest-name">{t("wishes.nameLabel")}</label>
+                    </div>
+                    <input
+                      type="text"
+                      id="guest-name"
+                      name="guestName"
+                      autoComplete="name"
+                      placeholder={t("wishes.namePlaceholder")}
+                      value={guestName}
+                      onChange={(e) => {
+                        setGuestName(e.target.value);
+                        setIsNameFromInvitation(false);
+                      }}
+                      disabled={isNameFromInvitation}
+                      className={cn(
+                        "w-full px-4 py-2.5 rounded-xl border transition-all duration-200 text-sky-800 placeholder-sky-400",
+                        isNameFromInvitation
+                          ? "bg-sky-50/50 border-sky-200 cursor-not-allowed opacity-80"
+                          : "bg-white/70 border-sky-200 focus:border-sky-400 focus:ring focus:ring-sky-200 focus:ring-opacity-50"
+                      )}
+                      required
+                    />
+                  </div>
 
-                      {/* Hidden select for accessibility */}
-                      <select
-                        id="attendance-select"
-                        name="attendance"
-                        value={attendance}
-                        onChange={(e) => setAttendance(e.target.value)}
-                        className={cn("sr-only")}
-                        aria-hidden="true"
-                      >
-                        <option value="">{t("wishes.attendancePlaceholder")}</option>
-                        {options.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-
-                      {/* Custom Select Button */}
+                  {/* Asistencia — solo dos opciones: Sí / No */}
+                  <div className={cn("space-y-2")}>
+                    <div
+                      className={cn(
+                        "flex items-center space-x-2 text-sky-600 text-sm font-medium"
+                      )}
+                    >
+                      <Calendar className={cn("w-4 h-4 text-sky-500")} />
+                      <span>{t("wishes.attendanceLabel")}</span>
+                    </div>
+                    <div className={cn("grid grid-cols-2 gap-3")}>
+                      {/* Botón Sí */}
                       <button
                         type="button"
-                        onClick={() => setIsOpen(!isOpen)}
-                        aria-label={t("wishes.attendanceLabel")}
-                        aria-expanded={isOpen}
-                        aria-controls="attendance-dropdown"
+                        onClick={() => {
+                          setAttendance("ATTENDING");
+                          setConfirmGuests(false);
+                        }}
                         className={cn(
-                          "w-full px-4 py-2.5 rounded-xl bg-white/70 border border-sky-200 focus:border-sky-400 focus:ring focus:ring-sky-200 focus:ring-opacity-50 transition-all duration-200 text-left flex items-center justify-between",
+                          "flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 font-medium transition-all duration-200 text-sm",
+                          isAttending
+                            ? "border-emerald-400 bg-emerald-50 text-emerald-700 shadow-sm"
+                            : "border-sky-200 bg-white/70 text-sky-600 hover:border-sky-300 hover:bg-sky-50"
                         )}
                       >
-                        <span
-                          className={
-                            attendance ? "text-sky-800 font-medium" : "text-sky-400"
-                          }
-                        >
-                          {attendance
-                            ? options.find((opt) => opt.value === attendance)
-                                ?.label
-                            : t("wishes.attendancePlaceholder")}
-                        </span>
-                        <ChevronDown
+                        <CheckCircle
                           className={cn(
-                            "w-5 h-5 text-sky-500 transition-transform duration-200",
-                            isOpen ? "transform rotate-180" : "",
+                            "w-4 h-4",
+                            isAttending ? "text-emerald-500" : "text-sky-400"
                           )}
                         />
+                        {t("wishes.attending")}
                       </button>
 
-                      {/* Dropdown Options */}
-                      <AnimatePresence>
-                        {isOpen && (
-                          <motion.div
-                            id="attendance-dropdown"
-                            role="listbox"
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className={cn(
-                              "absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-sky-100 overflow-hidden",
-                            )}
-                          >
-                            {options.map((option) => (
-                              <motion.button
-                                key={option.value}
-                                type="button"
-                                onClick={() => {
-                                  setAttendance(option.value);
-                                  setIsOpen(false);
-                                }}
-                                whileHover={{
-                                  backgroundColor: "rgb(240, 249, 255)",
-                                }}
-                                className={cn(
-                                  "w-full px-4 py-2.5 text-left transition-colors",
-                                  attendance === option.value
-                                    ? "bg-sky-50 text-sky-600 font-semibold"
-                                    : "text-sky-800 hover:bg-sky-50",
-                                )}
-                              >
-                                {option.label}
-                              </motion.button>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-
-                    {/* Wish Textarea */}
-                    <div className={cn("space-y-2")}>
-                      <div
+                      {/* Botón No */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAttendance("NOT_ATTENDING");
+                          setConfirmGuests(false);
+                        }}
                         className={cn(
-                          "flex items-center space-x-2 text-sky-600 text-sm mb-1 font-medium",
+                          "flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 font-medium transition-all duration-200 text-sm",
+                          isNotAttending
+                            ? "border-sky-400 bg-sky-50 text-sky-700 shadow-sm"
+                            : "border-sky-200 bg-white/70 text-sky-600 hover:border-sky-300 hover:bg-sky-50"
                         )}
                       >
-                        <MessageCircle className={cn("w-4 h-4 text-sky-500")} />
-                        <label htmlFor="wish-message">{t("wishes.wishLabel")}</label>
-                      </div>
-                      <textarea
-                        id="wish-message"
-                        name="message"
-                        placeholder={t("wishes.wishPlaceholder")}
-                        value={newWish}
-                        onChange={(e) => setNewWish(e.target.value)}
-                        className={cn(
-                          "w-full h-32 p-4 rounded-xl bg-white/70 border border-sky-200 focus:border-sky-400 focus:ring focus:ring-sky-200 focus:ring-opacity-50 resize-none transition-all duration-200 text-sky-800 placeholder-sky-400",
-                        )}
-                        required
-                      />
+                        <XCircle
+                          className={cn(
+                            "w-4 h-4",
+                            isNotAttending ? "text-sky-500" : "text-sky-400"
+                          )}
+                        />
+                        {t("wishes.notAttending")}
+                      </button>
                     </div>
                   </div>
 
-                  <div className={cn("flex items-center justify-between mt-6")}>
-                    <motion.button
-                      type="submit"
-                      disabled={createWishMutation.isPending}
-                      whileHover={{
-                        scale: createWishMutation.isPending ? 1 : 1.02,
-                      }}
-                      whileTap={{
-                        scale: createWishMutation.isPending ? 1 : 0.98,
-                      }}
+                  {/* Checkbox de confirmación de invitados — solo visible si confirma asistencia */}
+                  <AnimatePresence>
+                    {isAttending && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className={cn("overflow-hidden")}
+                      >
+                        <label
+                          htmlFor="confirm-guests"
+                          className={cn(
+                            "flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200",
+                            confirmGuests
+                              ? "border-emerald-300 bg-emerald-50"
+                              : "border-sky-200 bg-white/70 hover:border-sky-300"
+                          )}
+                        >
+                          <input
+                            id="confirm-guests"
+                            type="checkbox"
+                            checked={confirmGuests}
+                            onChange={(e) => setConfirmGuests(e.target.checked)}
+                            className={cn(
+                              "mt-0.5 w-5 h-5 rounded accent-emerald-500 cursor-pointer flex-shrink-0"
+                            )}
+                          />
+                          <span
+                            className={cn(
+                              "text-sm font-medium leading-snug",
+                              confirmGuests ? "text-emerald-700" : "text-sky-700"
+                            )}
+                          >
+                            <span className="flex items-center gap-1.5 mb-0.5">
+                              <Users className="w-4 h-4 inline-block" />
+                              {t("wishes.confirmGuestsLabel")}{" "}
+                              <strong>{guestCount}</strong>{" "}
+                              {guestCount === 1
+                                ? t("wishes.confirmGuestsSingular")
+                                : t("wishes.confirmGuestsPlural")}
+                            </span>
+                            <span className={cn("text-xs font-normal text-sky-500 block mt-0.5")}>
+                              {t("wishes.limitedSeatsNote")}
+                            </span>
+                          </span>
+                        </label>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Mensaje opcional */}
+                  <div className={cn("space-y-2")}>
+                    <div
                       className={cn(
-                        "w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-white font-medium shadow-md shadow-sky-500/20 transition-all duration-200",
-                        createWishMutation.isPending
-                          ? "bg-sky-300 cursor-not-allowed"
-                          : "bg-sky-500 hover:bg-sky-600",
+                        "flex items-center space-x-2 text-sky-600 text-sm font-medium"
                       )}
                     >
-                      {createWishMutation.isPending ? (
-                        <Loader2 className={cn("w-4 h-4 animate-spin")} />
-                      ) : (
-                        <Send className={cn("w-4 h-4")} />
+                      <MessageCircle className={cn("w-4 h-4 text-sky-500")} />
+                      <label htmlFor="wish-message">{t("wishes.wishLabel")}</label>
+                    </div>
+                    <textarea
+                      id="wish-message"
+                      name="message"
+                      placeholder={t("wishes.wishPlaceholder")}
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className={cn(
+                        "w-full h-28 p-4 rounded-xl bg-white/70 border border-sky-200 focus:border-sky-400 focus:ring focus:ring-sky-200 focus:ring-opacity-50 resize-none transition-all duration-200 text-sky-800 placeholder-sky-400"
                       )}
-                      <span>
-                        {createWishMutation.isPending
-                          ? t("wishes.sending")
-                          : t("wishes.sendButton")}
-                      </span>
-                    </motion.button>
+                    />
                   </div>
+
+                  {/* Botón enviar vía WhatsApp */}
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={cn(
+                      "w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-white font-medium shadow-md shadow-sky-500/20 transition-all duration-200 bg-sky-500 hover:bg-sky-600"
+                    )}
+                  >
+                    {/* Ícono de WhatsApp inline SVG */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg>
+                    {t("wishes.sendWhatsapp")}
+                  </motion.button>
                 </div>
               </form>
             )}
