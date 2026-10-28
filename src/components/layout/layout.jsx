@@ -42,12 +42,12 @@ const Layout = ({ children, audioControls }) => {
   return (
     <div
       className={cn(
-        "relative min-h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center",
+        "relative min-h-screen w-full bg-gradient-to-br from-sky-50/50 to-blue-50/30 flex items-center justify-center",
       )}
     >
       <motion.div
         className={cn(
-          "mx-auto w-full max-w-[430px] min-h-screen bg-white relative overflow-hidden border border-gray-200 shadow-lg",
+          "mx-auto w-full max-w-[430px] min-h-screen bg-white relative overflow-hidden border border-sky-100 shadow-xl",
         )}
         variants={fade}
         initial="hidden"
@@ -63,20 +63,21 @@ const Layout = ({ children, audioControls }) => {
             whileTap={{ scale: 0.9 }}
             onClick={toggle}
             className={cn(
-              "absolute top-4 right-4 z-50 bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-lg border border-rose-100/50",
+              "absolute top-4 right-4 z-50 bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-lg border border-sky-100",
             )}
+            aria-label="Reproducir o pausar música"
           >
             {isPlaying ? (
               <div className={cn("relative")}>
-                <PauseCircle className={cn("w-6 h-6 text-rose-500")} />
+                <PauseCircle className={cn("w-6 h-6 text-sky-500")} />
                 <span
                   className={cn(
-                    "absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse",
+                    "absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse",
                   )}
                 />
               </div>
             ) : (
-              <PlayCircle className={cn("w-6 h-6 text-rose-500")} />
+              <PlayCircle className={cn("w-6 h-6 text-sky-500")} />
             )}
           </motion.button>
         )}
@@ -100,12 +101,12 @@ const Layout = ({ children, audioControls }) => {
             >
               <div
                 className={cn(
-                  "bg-black/80 text-white px-4 py-2 rounded-full backdrop-blur-sm flex items-center space-x-2",
+                  "bg-sky-900/90 text-sky-100 px-4 py-2 rounded-full backdrop-blur-sm flex items-center space-x-2 shadow-lg border border-sky-700/50",
                 )}
               >
-                <Music className={cn("w-4 h-4 animate-pulse")} />
+                <Music className={cn("w-4 h-4 text-sky-300 animate-pulse")} />
                 <span className={cn("text-sm whitespace-nowrap")}>
-                  {config.audio?.title || "Background Music"}
+                  {config.audio?.title || "Música Romántica"}
                 </span>
               </div>
             </motion.div>

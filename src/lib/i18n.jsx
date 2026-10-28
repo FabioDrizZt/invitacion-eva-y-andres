@@ -1,20 +1,21 @@
 import { createContext, useContext, useMemo } from "react";
+import es from "@/locales/es.json";
 import en from "@/locales/en.json";
 import id from "@/locales/id.json";
 
-const locales = { en, id };
+const locales = { es, en, id };
 
-const LanguageContext = createContext("en");
+const LanguageContext = createContext("es");
 
 /**
  * LanguageProvider wraps the app and provides the current language.
- * Reads the language from the invitation config (API response).
+ * Reads the language from the invitation config (API response or static).
  *
  * @param {object} props
- * @param {"en"|"id"} props.language - Current language code
+ * @param {"es"|"en"|"id"} props.language - Current language code
  * @param {React.ReactNode} props.children
  */
-export function LanguageProvider({ language = "en", children }) {
+export function LanguageProvider({ language = "es", children }) {
   return (
     <LanguageContext.Provider value={language}>
       {children}
@@ -37,7 +38,7 @@ export function useTranslation() {
   const language = useContext(LanguageContext);
 
   const t = useMemo(() => {
-    const messages = locales[language] || locales.en;
+    const messages = locales[language] || locales.es || locales.en;
 
     return (key) => {
       const parts = key.split(".");

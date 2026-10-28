@@ -7,7 +7,7 @@ import { useMotionPreset, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export default function Gifts() {
-  const config = useConfig(); // Use hook to get config from API or fallback to static
+  const config = useConfig();
   const { t } = useTranslation();
   const [copiedAccount, setCopiedAccount] = useState(null);
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -47,14 +47,14 @@ export default function Gifts() {
           >
             <motion.span
               variants={fadeUp}
-              className={cn("inline-block text-rose-500 font-medium")}
+              className={cn("inline-block text-sky-500 font-medium tracking-wide")}
             >
               {t("gifts.subTitle")}
             </motion.span>
 
             <motion.h2
               variants={fadeUp}
-              className={cn("text-4xl md:text-5xl font-serif text-gray-800")}
+              className={cn("text-4xl md:text-5xl font-serif text-sky-800")}
             >
               {t("gifts.title")}
             </motion.h2>
@@ -64,9 +64,9 @@ export default function Gifts() {
               variants={scaleIn}
               className={cn("flex items-center justify-center gap-4 pt-4")}
             >
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
-              <Gift className={cn("w-5 h-5 text-rose-400")} />
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
+              <div className={cn("h-[1px] w-12 bg-sky-200")} />
+              <Gift className={cn("w-5 h-5 text-sky-400")} />
+              <div className={cn("h-[1px] w-12 bg-sky-200")} />
             </motion.div>
 
             {/* Message Container */}
@@ -74,32 +74,27 @@ export default function Gifts() {
               variants={fade}
               className={cn("space-y-4 max-w-md mx-auto")}
             >
-              {/* Arabic InsyaAllah */}
-              <p className={cn("font-arabic text-xl text-gray-800")}>
-                إن شاء الله
-              </p>
-
-              <p className={cn("text-gray-600 leading-relaxed")}>
+              <p className={cn("text-sky-700 leading-relaxed")}>
                 {t("gifts.message")}
               </p>
-              <div className={cn("space-y-2")}>
-                <p className={cn("font-arabic text-lg text-gray-800")}>
-                  جزاكم الله خيرا وبارك الله فيكم
+              <div className={cn("space-y-1")}>
+                <p className={cn("font-serif text-lg text-sky-800 italic")}>
+                  «El amor es lo único que crece cuando se reparte»
                 </p>
-                <p className={cn("text-gray-600 italic text-sm")}>
-                  Jazakumullahu khairan, Barakallah fiikum
+                <p className={cn("text-sky-600 text-sm")}>
+                  ¡Gracias de corazón por acompañarnos en este hermoso comienzo!
                 </p>
               </div>
             </motion.div>
 
-            {/* Optional: Additional Decorative Element */}
+            {/* Additional Decorative Element */}
             <motion.div
               variants={scaleIn}
               className={cn("flex items-center justify-center gap-3 pt-4")}
             >
-              <div className={cn("h-px w-8 bg-rose-200/50")} />
-              <div className={cn("w-1.5 h-1.5 rounded-full bg-rose-300")} />
-              <div className={cn("h-px w-8 bg-rose-200/50")} />
+              <div className={cn("h-px w-8 bg-sky-200")} />
+              <div className={cn("w-1.5 h-1.5 rounded-full bg-sky-400")} />
+              <div className={cn("h-px w-8 bg-sky-200")} />
             </motion.div>
           </motion.div>
 
@@ -118,44 +113,44 @@ export default function Gifts() {
               >
                 <div
                   className={cn(
-                    "absolute inset-0 bg-gradient-to-r from-rose-100/50 to-pink-100/50 rounded-2xl transform transition-transform group-hover:scale-105 duration-300",
+                    "absolute inset-0 bg-gradient-to-r from-sky-100/60 to-blue-100/60 rounded-2xl transform transition-transform group-hover:scale-105 duration-300",
                   )}
                 />
                 <div
                   className={cn(
-                    "relative backdrop-blur-sm bg-white/80 p-6 rounded-2xl border border-rose-100/50 shadow-lg",
+                    "relative backdrop-blur-sm bg-white/85 p-6 rounded-2xl border border-sky-100 shadow-lg",
                   )}
                 >
                   <div className={cn("flex items-center justify-between")}>
                     <div className={cn("flex items-center space-x-4")}>
                       <div
                         className={cn(
-                          "w-12 h-12 rounded-lg bg-white p-2 shadow-sm",
+                          "w-12 h-12 rounded-lg bg-sky-50 p-2 shadow-sm border border-sky-100",
                         )}
                       >
                         <Building2
-                          className={cn("w-full h-full text-rose-500")}
+                          className={cn("w-full h-full text-sky-500")}
                         />
                       </div>
                       <div>
-                        <h3 className={cn("font-medium text-gray-800")}>
+                        <h3 className={cn("font-medium text-sky-800")}>
                           {account.bank}
                         </h3>
-                        <p className={cn("text-sm text-gray-500")}>
+                        <p className={cn("text-sm text-sky-600")}>
                           {account.accountName}
                         </p>
                       </div>
                     </div>
-                    <Wallet className={cn("w-5 h-5 text-rose-400")} />
+                    <Wallet className={cn("w-5 h-5 text-sky-400")} />
                   </div>
 
                   <div className={cn("mt-4")}>
                     <div
                       className={cn(
-                        "flex items-center justify-between bg-gray-50/80 px-4 py-3 rounded-lg",
+                        "flex items-center justify-between bg-sky-50/70 border border-sky-100/70 px-4 py-3 rounded-lg",
                       )}
                     >
-                      <p className={cn("font-mono text-gray-700")}>
+                      <p className={cn("font-mono text-sky-800 text-sm")}>
                         {account.accountNumber}
                       </p>
                       <motion.button
@@ -165,15 +160,15 @@ export default function Gifts() {
                           copyToClipboard(account.accountNumber, account.bank)
                         }
                         className={cn(
-                          "flex items-center space-x-1 text-rose-500 hover:text-rose-600",
+                          "flex items-center space-x-1.5 text-sky-600 hover:text-sky-700 font-medium px-2 py-1 rounded-md hover:bg-sky-100/60 transition-colors",
                         )}
                       >
                         {copiedAccount === account.bank ? (
-                          <CheckCircle className={cn("w-4 h-4")} />
+                          <CheckCircle className={cn("w-4 h-4 text-emerald-500")} />
                         ) : (
-                          <Copy className={cn("w-4 h-4")} />
+                          <Copy className={cn("w-4 h-4 text-sky-500")} />
                         )}
-                        <span className={cn("text-sm")}>
+                        <span className={cn("text-xs sm:text-sm")}>
                           {copiedAccount === account.bank ? t("gifts.copied") : t("gifts.copy")}
                         </span>
                       </motion.button>

@@ -1,107 +1,79 @@
 /**
- * Formats a date string into Indonesian format
+ * Formats a date string into Spanish (Argentine) format
  * @param {string} isoString - The ISO date string to format
  * @param {('full'|'short'|'time')} [format='full'] - The format type to use
- * @param {boolean} [isJakartaTime=false] - Whether the input is already in Jakarta time
- * @returns {string} The formatted date string in Indonesian
+ * @param {boolean} [isUtc=false] - Whether the input is UTC
+ * @returns {string} The formatted date string in Spanish
  *
  * @example
- * // returns "Senin, 1 Januari 2024"
- * formatEventDate("2024-01-01T00:00:00.000Z", "full")
+ * // returns "Viernes, 20 de Noviembre de 2026"
+ * formatEventDate("2026-11-20", "full")
  *
- * // returns "1 Januari 2024"
- * formatEventDate("2024-01-01T00:00:00.000Z", "short")
+ * // returns "20 de Noviembre de 2026"
+ * formatEventDate("2026-11-20", "short")
  *
- * // returns "00:00"
- * formatEventDate("2024-01-01T00:00:00.000Z", "time")
+ * // returns "18:00"
+ * formatEventDate("2026-11-20T18:00:00", "time")
  */
 export const formatEventDate = (
   isoString,
   format = "full",
-  isJakartaTime = false,
+  isUtc = false,
 ) => {
-  let date = new Date(isoString);
+  if (!isoString) return "";
 
-  // If the timestamp is already in Jakarta time (from API), we need to adjust it
-  // because JavaScript Date constructor assumes UTC for ISO strings
-  if (isJakartaTime && isoString && !isoString.endsWith("Z")) {
-    // Add 'Z' to treat it as UTC, then it will be converted correctly to Jakarta time
-    date = new Date(isoString + "Z");
-  }
-
-  const formats = {
-    full: {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "Asia/Jakarta",
-    },
-    short: {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      timeZone: "Asia/Jakarta",
-    },
-    time: {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Jakarta",
-    },
-  };
-
-  // Indonesian month names mapping
-  const monthsIndonesian = {
-    January: "Januari",
-    February: "Februari",
-    March: "Maret",
-    April: "April",
-    May: "Mei",
-    June: "Juni",
-    July: "Juli",
-    August: "Agustus",
-    September: "September",
-    October: "Oktober",
-    November: "November",
-    December: "Desember",
-  };
-
-  // Indonesian day names mapping
-  const daysIndonesian = {
-    Sunday: "Minggu",
-    Monday: "Senin",
-    Tuesday: "Selasa",
-    Wednesday: "Rabu",
-    Thursday: "Kamis",
-    Friday: "Jumat",
-    Saturday: "Sabtu",
-  };
-
-  let formatted = date.toLocaleDateString("en-US", formats[format]);
-
-  // Handle time format separately
-  if (format === "time") {
-    return date.toLocaleTimeString("en-US", formats[format]);
-  }
-
-  // Replace English month and day names with Indonesian ones
-  Object.keys(monthsIndonesian).forEach((english) => {
-    formatted = formatted.replace(english, monthsIndonesian[english]);
-  });
-
-  Object.keys(daysIndonesian).forEach((english) => {
-    formatted = formatted.replace(english, daysIndonesian[english]);
-  });
-
-  // Format adjustment for full date
-  if (format === "full") {
-    // Convert "Hari, Tanggal Bulan Tahun" format
-    const parts = formatted.split(", ");
-    if (parts.length === 2) {
-      formatted = `${parts[0]}, ${parts[1]}`;
+  // Handle simple "YYYY-MM-DD" strings without timezone skew
+  let date;
+  if (typeof isoString === "string" && /^\d{4}-\d{2}-\d{2}$/.test(isoString)) {
+    const [year, month, day] = isoString.split("-").map(Number);
+    date = new Date(year, month - 1, day);
+  } else {
+    date = new Date(isoString);
+    if (isUtc && typeof isoString === "string" && !isoString.endsWith("Z")) {
+      date = new Date(isoString + "Z");
     }
   }
 
-  return formatted;
+  const monthsSpanish = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
+  const daysSpanish = [
+    "Domingo",
+    "Lunes",
+    "Martes",
+    "Miércoles",
+    "Jueves",
+    "Viernes",
+    "Sábado",
+  ];
+
+  const dayOfWeek = daysSpanish[date.getDay()];
+  const dayOfMonth = date.getDate();
+  const monthName = monthsSpanish[date.getMonth()];
+  const year = date.getFullYear();
+
+  if (format === "time") {
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }
+
+  if (format === "short") {
+    return `${dayOfMonth} de ${monthName} de ${year}`;
+  }
+
+  // Full format: "Sábado, 22 de Noviembre de 2025"
+  return `${dayOfWeek}, ${dayOfMonth} de ${monthName} de ${year}`;
 };

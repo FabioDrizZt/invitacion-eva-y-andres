@@ -36,21 +36,6 @@ const LandingPage = lazy(
 
 /**
  * App component serves as the root of the application.
- *
- * It manages the state to determine whether the invitation content should be shown.
- * Initially, the invitation is closed and the LandingPage component is rendered.
- * Once triggered, the Layout component containing MainContent is displayed.
- *
- * This component also uses HelmetProvider and Helmet to set up various meta tags:
- *   - Primary meta tags: title and description.
- *   - Open Graph tags for Facebook.
- *   - Twitter meta tags for summary and large image preview.
- *   - Favicon link and additional meta tags for responsive design and theme color.
- *
- * @component
- * @example
- * // Renders the App component
- * <App />
  */
 function App() {
   const [isInvitationOpen, setIsInvitationOpen] = useState(false);
@@ -82,17 +67,17 @@ function App() {
     return (
       <div
         className={cn(
-          "min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 to-pink-50",
+          "min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 to-blue-50",
         )}
       >
         <div className={cn("text-center max-w-md mx-auto p-6")}>
-          <div className={cn("text-rose-500 text-6xl mb-4")}>!</div>
-          <h1 className={cn("text-2xl font-serif text-gray-800 mb-2")}>
-            Invitation Not Found
+          <div className={cn("text-sky-500 text-6xl mb-4 font-serif")}>!</div>
+          <h1 className={cn("text-2xl font-serif text-sky-800 mb-2")}>
+            Invitación no encontrada
           </h1>
-          <p className={cn("text-gray-600 mb-4")}>{error}</p>
-          <p className={cn("text-sm text-gray-500")}>
-            Please check your URL or contact the organizer.
+          <p className={cn("text-sky-600 mb-4")}>{error}</p>
+          <p className={cn("text-sm text-sky-500")}>
+            Por favor revisá el enlace o ponete en contacto con los novios.
           </p>
         </div>
       </div>
@@ -100,7 +85,7 @@ function App() {
   }
 
   return (
-    <LanguageProvider language={activeConfig?.language || "en"}>
+    <LanguageProvider language={activeConfig?.language || "es"}>
       {/* Loading overlay with exit animation */}
       <AnimatePresence>
         {isLoading && (
@@ -110,10 +95,10 @@ function App() {
             exit={{ y: "-100%", opacity: 0 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className={cn(
-              "fixed inset-0 z-50 flex items-center justify-center bg-[#faf9f7]",
+              "fixed inset-0 z-50 flex items-center justify-center bg-sky-50/80 backdrop-blur-sm",
             )}
             role="status"
-            aria-label="Loading invitation"
+            aria-label="Cargando invitación"
           >
             <div className={cn("text-center")}>
               <motion.p
@@ -121,16 +106,16 @@ function App() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 1, ease: "easeOut" }}
                 className={cn(
-                  "font-serif text-xs text-gray-400 tracking-[6px] uppercase",
+                  "font-serif text-xs text-sky-600 tracking-[6px] uppercase font-medium",
                 )}
               >
-                Preparing
+                Cargando...
               </motion.p>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: 44 }}
                 transition={{ delay: 0.7, duration: 1.2, ease: "easeOut" }}
-                className={cn("h-px bg-rose-600 mx-auto mt-4")}
+                className={cn("h-px bg-sky-500 mx-auto mt-4")}
               />
             </div>
           </motion.div>
@@ -141,20 +126,20 @@ function App() {
         fallback={
           <div
             className={cn(
-              "fixed inset-0 z-50 flex items-center justify-center bg-[#faf9f7]",
+              "fixed inset-0 z-50 flex items-center justify-center bg-sky-50/80 backdrop-blur-sm",
             )}
             role="status"
-            aria-label="Loading"
+            aria-label="Cargando"
           >
             <div className={cn("text-center")}>
               <p
                 className={cn(
-                  "font-serif text-xs text-gray-400 tracking-[6px] uppercase",
+                  "font-serif text-xs text-sky-600 tracking-[6px] uppercase font-medium",
                 )}
               >
-                Preparing
+                Cargando...
               </p>
-              <div className={cn("h-px w-[44px] bg-rose-600 mx-auto mt-4")} />
+              <div className={cn("h-px w-[44px] bg-sky-500 mx-auto mt-4")} />
             </div>
           </div>
         }

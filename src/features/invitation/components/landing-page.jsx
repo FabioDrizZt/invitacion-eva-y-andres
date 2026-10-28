@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const LandingPage = ({ onOpenInvitation }) => {
-  const config = useConfig(); // Use hook to get config from API or fallback to static
+  const config = useConfig();
   const reduceMotion = useReducedMotionFlag();
   const fade = useMotionPreset("fade");
   const fadeUp = useMotionPreset("fadeUp");
@@ -25,24 +25,24 @@ const LandingPage = ({ onOpenInvitation }) => {
       animate="visible"
       className={cn("min-h-screen relative overflow-hidden")}
     >
-      {/* Decorative Background */}
+      {/* Fondo decorativo en tonos celestes */}
       <div
         className={cn(
-          "absolute inset-0 bg-gradient-to-b from-white via-rose-50/30 to-white",
+          "absolute inset-0 bg-gradient-to-b from-white via-sky-50/50 to-white",
         )}
       />
       <div
         className={cn(
-          "absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-rose-100/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2",
+          "absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-sky-100/40 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2",
         )}
       />
       <div
         className={cn(
-          "absolute bottom-0 left-0 w-64 h-64 md:w-96 md:h-96 bg-pink-100/20 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2",
+          "absolute bottom-0 left-0 w-64 h-64 md:w-96 md:h-96 bg-sky-200/30 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2",
         )}
       />
 
-      {/* Main Content */}
+      {/* Contenido principal */}
       <div
         className={cn(
           "relative z-10 min-h-screen flex flex-col items-center justify-center px-4",
@@ -54,50 +54,50 @@ const LandingPage = ({ onOpenInvitation }) => {
           animate="visible"
           className={cn("w-full max-w-md")}
         >
-          {/* Card Container */}
+          {/* Tarjeta de invitación */}
           <div
             className={cn(
-              "backdrop-blur-sm bg-white/50 p-6 sm:p-8 md:p-10 rounded-2xl border border-rose-100/50 shadow-xl",
+              "backdrop-blur-sm bg-white/75 p-6 sm:p-8 md:p-10 rounded-2xl border border-sky-100 shadow-xl",
             )}
           >
-            {/* Top Decorative Line */}
+            {/* Línea decorativa superior */}
             <div
               className={cn(
                 "flex items-center justify-center gap-3 mb-6 sm:mb-8",
               )}
             >
-              <div className={cn("h-px w-12 sm:w-16 bg-rose-200/50")} />
-              <div className={cn("w-2 h-2 rounded-full bg-rose-300")} />
-              <div className={cn("h-px w-12 sm:w-16 bg-rose-200/50")} />
+              <div className={cn("h-px w-12 sm:w-16 bg-sky-200")} />
+              <div className={cn("w-2 h-2 rounded-full bg-sky-400")} />
+              <div className={cn("h-px w-12 sm:w-16 bg-sky-200")} />
             </div>
 
-            {/* Date and Time */}
+            {/* Fecha y Hora */}
             <motion.div
               variants={fadeUp}
               className={cn("flex flex-col gap-4 mb-6 sm:mb-8 items-center")}
             >
               <div
                 className={cn(
-                  "inline-flex flex-col items-center space-y-1 bg-white/80 px-4 sm:px-6 py-2 sm:py-3 rounded-xl",
+                  "inline-flex flex-col items-center space-y-1 bg-sky-50/80 px-4 sm:px-6 py-2 sm:py-3 rounded-xl border border-sky-100/80 shadow-sm",
                 )}
               >
-                <Calendar className={cn("w-5 h-5 text-rose-400")} />
-                <p className={cn("text-gray-700 font-medium")}>
-                  {formatEventDate(config.date)}
+                <Calendar className={cn("w-5 h-5 text-sky-500")} />
+                <p className={cn("text-sky-700 font-medium")}>
+                  {formatEventDate(config.date, "full")}
                 </p>
               </div>
 
               <div
                 className={cn(
-                  "inline-flex flex-col items-center space-y-1 bg-white/80 px-4 sm:px-6 py-2 sm:py-3 rounded-xl",
+                  "inline-flex flex-col items-center space-y-1 bg-sky-50/80 px-4 sm:px-6 py-2 sm:py-3 rounded-xl border border-sky-100/80 shadow-sm",
                 )}
               >
-                <Clock className={cn("w-5 h-5 text-rose-400")} />
-                <p className={cn("text-gray-700 font-medium")}>{config.time}</p>
+                <Clock className={cn("w-5 h-5 text-sky-500")} />
+                <p className={cn("text-sky-700 font-medium")}>{config.time}</p>
               </div>
             </motion.div>
 
-            {/* Couple Names */}
+            {/* Nombres de los Novios */}
             <motion.div
               variants={fadeUp}
               className={cn("text-center space-y-4")}
@@ -105,30 +105,30 @@ const LandingPage = ({ onOpenInvitation }) => {
               <div className={cn("space-y-2")}>
                 <h1
                   className={cn(
-                    "text-3xl sm:text-4xl md:text-5xl font-serif text-gray-800 leading-tight",
+                    "text-3xl sm:text-4xl md:text-5xl font-serif text-sky-800 leading-tight tracking-wide",
                   )}
                 >
-                  {config.groomName}
-                  <span className={cn("text-rose-400 mx-2 sm:mx-3")}>&</span>
                   {config.brideName}
+                  <span className={cn("text-sky-500 mx-2 sm:mx-3 font-normal")}>&</span>
+                  {config.groomName}
                 </h1>
-                <div className={cn("h-px w-16 sm:w-24 mx-auto bg-rose-200")} />
+                <div className={cn("h-px w-16 sm:w-24 mx-auto bg-sky-300")} />
               </div>
             </motion.div>
 
-            {/* Open Invitation Button */}
+            {/* Botón Abrir Invitación */}
             <motion.div variants={fadeUp} className={cn("mt-6 sm:mt-8")}>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onOpenInvitation}
                 className={cn(
-                  "group relative w-full bg-rose-500 text-white px-6 py-3 sm:px-8 sm:py-3 rounded-xl font-medium shadow-lg hover:bg-rose-600 transition-all duration-200",
+                  "group relative w-full bg-sky-500 text-white px-6 py-3 sm:px-8 sm:py-3 rounded-xl font-medium shadow-lg shadow-sky-500/20 hover:bg-sky-600 transition-all duration-200",
                 )}
               >
                 <span
                   className={cn(
-                    "relative z-10 flex items-center justify-center gap-2",
+                    "relative z-10 flex items-center justify-center gap-2 text-white font-semibold",
                   )}
                 >
                   <span>{t("landing.openInvitation")}</span>
@@ -145,7 +145,7 @@ const LandingPage = ({ onOpenInvitation }) => {
                 </span>
                 <div
                   className={cn(
-                    "absolute inset-0 bg-gradient-to-r from-rose-600 to-rose-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200",
+                    "absolute inset-0 bg-gradient-to-r from-sky-600 to-sky-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200",
                   )}
                 />
               </motion.button>

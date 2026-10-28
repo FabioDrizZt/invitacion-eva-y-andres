@@ -7,7 +7,7 @@ import { useMotionPreset, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export default function Location() {
-  const config = useConfig(); // Use hook to get config from API or fallback to static
+  const config = useConfig();
   const { t } = useTranslation();
   const fadeUp = useMotionPreset("fadeUp");
   const scaleIn = useMotionPreset("scaleIn");
@@ -30,14 +30,14 @@ export default function Location() {
           >
             <motion.span
               variants={fadeUp}
-              className={cn("inline-block text-rose-500 font-medium")}
+              className={cn("inline-block text-sky-500 font-medium tracking-wide")}
             >
               {t("location.eventVenue")}
             </motion.span>
 
             <motion.h2
               variants={fadeUp}
-              className={cn("text-4xl md:text-5xl font-serif text-gray-800")}
+              className={cn("text-4xl md:text-5xl font-serif text-sky-800")}
             >
               {t("location.title")}
             </motion.h2>
@@ -47,9 +47,9 @@ export default function Location() {
               variants={scaleIn}
               className={cn("flex items-center justify-center gap-4 pt-4")}
             >
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
-              <MapPin className={cn("w-5 h-5 text-rose-400")} />
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
+              <div className={cn("h-[1px] w-12 bg-sky-200")} />
+              <MapPin className={cn("w-5 h-5 text-sky-400")} />
+              <div className={cn("h-[1px] w-12 bg-sky-200")} />
             </motion.div>
           </motion.div>
 
@@ -78,6 +78,7 @@ export default function Location() {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 className={cn("w-full h-full")}
+                title="Mapa de ubicación"
               ></iframe>
             </motion.div>
 
@@ -91,31 +92,31 @@ export default function Location() {
             >
               <div
                 className={cn(
-                  "bg-white rounded-2xl p-8 shadow-lg border border-gray-100",
+                  "bg-white rounded-2xl p-8 shadow-lg border border-sky-100",
                 )}
               >
-                <h3 className={cn("text-2xl font-serif text-gray-800 mb-6")}>
+                <h3 className={cn("text-2xl font-serif text-sky-800 mb-6")}>
                   {config.location}
                 </h3>
 
                 <div className={cn("space-y-4")}>
                   <div className={cn("flex items-start space-x-4")}>
-                    <MapPin className={cn("w-5 h-5 text-rose-500 mt-1")} />
-                    <p className={cn("text-gray-600 flex-1")}>
+                    <MapPin className={cn("w-5 h-5 text-sky-500 mt-1 shrink-0")} />
+                    <p className={cn("text-sky-700 flex-1")}>
                       {config.address}
                     </p>
                   </div>
 
                   <div className={cn("flex items-center space-x-4")}>
-                    <CalendarCheck className={cn("w-5 h-5 text-rose-500")} />
-                    <p className={cn("text-gray-600")}>
-                      {formatEventDate(config.date)}
+                    <CalendarCheck className={cn("w-5 h-5 text-sky-500 shrink-0")} />
+                    <p className={cn("text-sky-700")}>
+                      {formatEventDate(config.date, "full")}
                     </p>
                   </div>
 
                   <div className={cn("flex items-center space-x-4")}>
-                    <Clock className={cn("w-5 h-5 text-rose-500")} />
-                    <p className={cn("text-gray-600")}>{config.time}</p>
+                    <Clock className={cn("w-5 h-5 text-sky-500 shrink-0")} />
+                    <p className={cn("text-sky-700")}>{config.time}</p>
                   </div>
 
                   {/* Action Button - Full Width */}
@@ -128,11 +129,11 @@ export default function Location() {
                       whileTap={{ scale: 0.98 }}
                       viewport={{ once: true }}
                       className={cn(
-                        "w-full flex items-center justify-center gap-1.5 bg-white text-gray-600 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm",
+                        "w-full flex items-center justify-center gap-1.5 bg-sky-50 text-sky-700 px-4 py-3 rounded-xl border border-sky-200 hover:bg-sky-100 transition-colors text-sm font-semibold shadow-sm",
                       )}
                     >
-                      <ExternalLink className={cn("w-3.5 h-3.5")} />
-                      <span className={cn("font-semibold")}>{t("location.viewMap")}</span>
+                      <ExternalLink className={cn("w-4 h-4 text-sky-500")} />
+                      <span>{t("location.viewMap")}</span>
                     </motion.a>
                   </div>
                 </div>

@@ -62,7 +62,6 @@ export default function Wishes() {
           }
         } catch (error) {
           console.error("Error checking wish status:", error);
-          // Don't show error to user, just let them try to submit
         }
       }
     };
@@ -108,7 +107,7 @@ export default function Wishes() {
       throw new Error(t("wishes.failedLoad"));
     },
     enabled: !!uid,
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 30 * 1000,
   });
 
   // Mutation for creating wishes
@@ -116,34 +115,28 @@ export default function Wishes() {
     mutationFn: (wishData) => createWish(uid, wishData),
     onSuccess: (response) => {
       if (response.success) {
-        // Optimistically update the cache
         queryClient.setQueryData(["wishes", uid], (old = []) => [
           response.data,
           ...old,
         ]);
-        // Reset form (keep guest name)
         setNewWish("");
         setAttendance("");
         setHasSubmittedWish(true);
         setErrorMessage("");
-        // Show confetti
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
       }
     },
     onError: (err) => {
       console.error("Error submitting wish:", err);
-
-      // Check if it's a duplicate wish error
       if (
         err.code === "DUPLICATE_WISH" ||
-        err.message.includes("already submitted")
+        err.message?.includes("already submitted")
       ) {
         setHasSubmittedWish(true);
         setErrorMessage("");
       } else {
         setErrorMessage(t("wishes.failedSubmit"));
-        // Auto-hide error after 5 seconds
         setTimeout(() => setErrorMessage(""), 5000);
       }
     },
@@ -159,7 +152,6 @@ export default function Wishes() {
       return;
     }
 
-    // Clear any previous errors
     setErrorMessage("");
 
     createWishMutation.mutate({
@@ -168,6 +160,7 @@ export default function Wishes() {
       attendance: attendance || "MAYBE",
     });
   };
+
   const getAttendanceIcon = (status) => {
     const normalizedStatus = status?.toLowerCase();
     switch (normalizedStatus) {
@@ -175,13 +168,14 @@ export default function Wishes() {
         return <CheckCircle className={cn("w-4 h-4 text-emerald-500")} />;
       case "not_attending":
       case "not-attending":
-        return <XCircle className={cn("w-4 h-4 text-rose-500")} />;
+        return <XCircle className={cn("w-4 h-4 text-sky-400")} />;
       case "maybe":
         return <HelpCircle className={cn("w-4 h-4 text-amber-500")} />;
       default:
         return null;
     }
   };
+
   return (
     <>
       <section
@@ -199,14 +193,14 @@ export default function Wishes() {
           >
             <motion.span
               variants={fadeUp}
-              className={cn("inline-block text-rose-500 font-medium")}
+              className={cn("inline-block text-sky-500 font-medium tracking-wide")}
             >
               {t("wishes.subTitle")}
             </motion.span>
 
             <motion.h2
               variants={fadeUp}
-              className={cn("text-4xl md:text-5xl font-serif text-gray-800")}
+              className={cn("text-4xl md:text-5xl font-serif text-sky-800")}
             >
               {t("wishes.title")}
             </motion.h2>
@@ -216,9 +210,9 @@ export default function Wishes() {
               variants={scaleIn}
               className={cn("flex items-center justify-center gap-4 pt-4")}
             >
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
-              <MessageCircle className={cn("w-5 h-5 text-rose-400")} />
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
+              <div className={cn("h-[1px] w-12 bg-sky-200")} />
+              <MessageCircle className={cn("w-5 h-5 text-sky-400")} />
+              <div className={cn("h-[1px] w-12 bg-sky-200")} />
             </motion.div>
           </motion.div>
 
@@ -235,23 +229,23 @@ export default function Wishes() {
                     repeat: Infinity,
                     repeatType: "reverse",
                   }}
-                  className={cn("h-px bg-rose-600")}
+                  className={cn("h-px bg-sky-500")}
                 />
               </div>
             )}
 
             {error && !isLoading && (
               <div className={cn("text-center py-8")}>
-                <p className={cn("text-rose-600")}>{error}</p>
+                <p className={cn("text-sky-600")}>{error}</p>
               </div>
             )}
 
             {!isLoading && !error && (!wishes || wishes.length === 0) && (
               <div className={cn("text-center py-12")}>
                 <MessageCircle
-                  className={cn("w-12 h-12 text-gray-300 mx-auto mb-4")}
+                  className={cn("w-12 h-12 text-sky-300 mx-auto mb-4")}
                 />
-                <p className={cn("text-gray-500")}>
+                <p className={cn("text-sky-600")}>
                   {t("wishes.emptyState")}
                 </p>
               </div>
@@ -281,14 +275,14 @@ export default function Wishes() {
                       {/* Background gradient */}
                       <div
                         className={cn(
-                          "absolute inset-0 bg-gradient-to-br from-rose-100/60 to-pink-100/60 rounded-2xl transform transition-transform group-hover:scale-[1.02] duration-300",
+                          "absolute inset-0 bg-gradient-to-br from-sky-100/60 to-blue-100/60 rounded-2xl transform transition-transform group-hover:scale-[1.02] duration-300",
                         )}
                       />
 
                       {/* Card content */}
                       <div
                         className={cn(
-                          "relative h-full backdrop-blur-sm bg-white/90 p-4 rounded-2xl border border-rose-100/50 shadow-md flex flex-col",
+                          "relative h-full backdrop-blur-sm bg-white/90 p-4 rounded-2xl border border-sky-100 shadow-md flex flex-col",
                         )}
                       >
                         {/* Header */}
@@ -297,10 +291,10 @@ export default function Wishes() {
                           <div className={cn("flex-shrink-0")}>
                             <div
                               className={cn(
-                                "w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-white text-sm font-semibold shadow-sm",
+                                "w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-sm font-semibold shadow-sm",
                               )}
                             >
-                              {wish.name[0].toUpperCase()}
+                              {wish.name[0]?.toUpperCase()}
                             </div>
                           </div>
 
@@ -309,7 +303,7 @@ export default function Wishes() {
                             <div className={cn("flex items-center space-x-2")}>
                               <h4
                                 className={cn(
-                                  "font-semibold text-gray-800 text-sm truncate max-w-[140px]",
+                                  "font-semibold text-sky-800 text-sm truncate max-w-[140px]",
                                 )}
                               >
                                 {wish.name}
@@ -318,10 +312,10 @@ export default function Wishes() {
                             </div>
                             <div
                               className={cn(
-                                "flex items-center space-x-1 text-gray-400 text-xs mt-0.5",
+                                "flex items-center space-x-1 text-sky-500 text-xs mt-0.5",
                               )}
                             >
-                              <Clock className={cn("w-3 h-3 flex-shrink-0")} />
+                              <Clock className={cn("w-3 h-3 flex-shrink-0 text-sky-400")} />
                               <time className={cn("truncate")}>
                                 {formatEventDate(
                                   wish.created_at,
@@ -337,10 +331,10 @@ export default function Wishes() {
                             3600000 && (
                             <span
                               className={cn(
-                                "flex-shrink-0 px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 text-xs font-medium",
+                                "flex-shrink-0 px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 text-xs font-medium",
                               )}
                             >
-                              New
+                              Nuevo
                             </span>
                           )}
                         </div>
@@ -349,7 +343,7 @@ export default function Wishes() {
                         <div className={cn("flex-1 overflow-hidden")}>
                           <p
                             className={cn(
-                              "text-gray-600 text-sm leading-relaxed line-clamp-3",
+                              "text-sky-700 text-sm leading-relaxed line-clamp-3",
                             )}
                           >
                             {wish.message}
@@ -375,7 +369,7 @@ export default function Wishes() {
                   exit="exit"
                   onClick={() => setSelectedWish(null)}
                   className={cn(
-                    "fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4",
+                    "fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4",
                   )}
                 >
                   {/* Modal Card */}
@@ -386,13 +380,13 @@ export default function Wishes() {
                     transition={{ type: "spring", damping: 25, stiffness: 300 }}
                     onClick={(e) => e.stopPropagation()}
                     className={cn(
-                      "bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto",
+                      "bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-sky-100",
                     )}
                   >
                     {/* Modal Header */}
                     <div
                       className={cn(
-                        "sticky top-0 bg-gradient-to-br from-rose-50 to-pink-50 p-6 border-b border-rose-100",
+                        "sticky top-0 bg-gradient-to-br from-sky-50 to-blue-50 p-6 border-b border-sky-100",
                       )}
                     >
                       <div className={cn("flex items-center justify-between")}>
@@ -400,31 +394,31 @@ export default function Wishes() {
                           {/* Avatar */}
                           <div
                             className={cn(
-                              "w-16 h-16 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-white text-2xl font-semibold shadow-lg",
+                              "w-16 h-16 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-2xl font-semibold shadow-lg",
                             )}
                           >
-                            {selectedWish.name[0].toUpperCase()}
+                            {selectedWish.name[0]?.toUpperCase()}
                           </div>
 
                           {/* Name and Time */}
                           <div>
                             <h3
                               className={cn(
-                                "text-2xl font-serif text-gray-800 font-semibold",
+                                "text-2xl font-serif text-sky-800 font-semibold",
                               )}
                             >
                               {selectedWish.name}
                             </h3>
                             <div
                               className={cn(
-                                "flex items-center space-x-2 text-gray-500 text-sm mt-1",
+                                "flex items-center space-x-2 text-sky-600 text-sm mt-1",
                               )}
                             >
-                              <Clock className={cn("w-4 h-4")} />
+                              <Clock className={cn("w-4 h-4 text-sky-400")} />
                               <time>
                                 {formatEventDate(
                                   selectedWish.created_at,
-                                  "long",
+                                  "short",
                                   true,
                                 )}
                               </time>
@@ -438,11 +432,11 @@ export default function Wishes() {
                           className={cn(
                             "p-2 rounded-full hover:bg-white/50 transition-colors",
                           )}
-                          aria-label="Close"
+                          aria-label={t("wishes.close")}
                         >
                           <XCircle
                             className={cn(
-                              "w-6 h-6 text-gray-400 hover:text-gray-600",
+                              "w-6 h-6 text-sky-400 hover:text-sky-600",
                             )}
                           />
                         </button>
@@ -453,7 +447,7 @@ export default function Wishes() {
                         <div className={cn("mt-4 flex items-center space-x-2")}>
                           {getAttendanceIcon(selectedWish.attendance)}
                           <span
-                            className={cn("text-sm font-medium text-gray-700")}
+                            className={cn("text-sm font-medium text-sky-700")}
                           >
                             {selectedWish.attendance === "ATTENDING" &&
                               t("wishes.attending")}
@@ -468,10 +462,10 @@ export default function Wishes() {
 
                     {/* Modal Body - Full Message */}
                     <div className={cn("p-6")}>
-                      <div className={cn("prose prose-gray max-w-none")}>
+                      <div className={cn("prose prose-sky max-w-none")}>
                         <p
                           className={cn(
-                            "text-gray-700 text-base leading-relaxed whitespace-pre-wrap",
+                            "text-sky-800 text-base leading-relaxed whitespace-pre-wrap",
                           )}
                         >
                           {selectedWish.message}
@@ -482,13 +476,13 @@ export default function Wishes() {
                     {/* Modal Footer */}
                     <div
                       className={cn(
-                        "sticky bottom-0 bg-gray-50 p-4 border-t border-gray-100 flex justify-end",
+                        "sticky bottom-0 bg-sky-50/60 p-4 border-t border-sky-100 flex justify-end",
                       )}
                     >
                       <button
                         onClick={() => setSelectedWish(null)}
                         className={cn(
-                          "px-6 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-medium transition-colors",
+                          "px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-medium transition-colors shadow-sm",
                         )}
                       >
                         {t("wishes.close")}
@@ -510,18 +504,18 @@ export default function Wishes() {
             {hasSubmittedWish ? (
               <div
                 className={cn(
-                  "backdrop-blur-sm bg-white/80 p-8 rounded-2xl border border-emerald-100 shadow-lg text-center",
+                  "backdrop-blur-sm bg-white/85 p-8 rounded-2xl border border-sky-100 shadow-lg text-center",
                 )}
               >
                 <div className={cn("flex flex-col items-center space-y-4")}>
                   <CheckCircle className={cn("w-16 h-16 text-emerald-500")} />
-                  <h3 className={cn("text-2xl font-serif text-gray-800")}>
+                  <h3 className={cn("text-2xl font-serif text-sky-800")}>
                     {t("wishes.thankYou")}
                   </h3>
-                  <p className={cn("text-gray-600")}>
+                  <p className={cn("text-sky-700")}>
                     {t("wishes.successMessage")}
                   </p>
-                  <p className={cn("text-sm text-gray-500 italic")}>
+                  <p className={cn("text-sm text-sky-500 italic")}>
                     {t("wishes.oneMessageLimit")}
                   </p>
                 </div>
@@ -530,7 +524,7 @@ export default function Wishes() {
               <form onSubmit={handleSubmitWish} className={cn("relative")}>
                 <div
                   className={cn(
-                    "backdrop-blur-sm bg-white/80 p-6 rounded-2xl border border-rose-100/50 shadow-lg",
+                    "backdrop-blur-sm bg-white/85 p-6 rounded-2xl border border-sky-100 shadow-lg",
                   )}
                 >
                   {/* Error Message */}
@@ -541,17 +535,17 @@ export default function Wishes() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         className={cn(
-                          "mb-4 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-start space-x-3",
+                          "mb-4 p-4 rounded-xl bg-sky-50 border border-sky-200 flex items-start space-x-3",
                         )}
                       >
                         <AlertCircle
                           className={cn(
-                            "w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5",
+                            "w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5",
                           )}
                         />
                         <div className={cn("flex-1")}>
                           <p
-                            className={cn("text-sm text-rose-800 font-medium")}
+                            className={cn("text-sm text-sky-800 font-medium")}
                           >
                             {errorMessage}
                           </p>
@@ -560,7 +554,7 @@ export default function Wishes() {
                           type="button"
                           onClick={() => setErrorMessage("")}
                           className={cn(
-                            "text-rose-400 hover:text-rose-600 transition-colors",
+                            "text-sky-400 hover:text-sky-600 transition-colors",
                           )}
                         >
                           <XCircle className={cn("w-4 h-4")} />
@@ -569,15 +563,15 @@ export default function Wishes() {
                     )}
                   </AnimatePresence>
 
-                  <div className={cn("space-y-2")}>
-                    {/* Name Input - Pre-filled from URL or editable */}
+                  <div className={cn("space-y-4")}>
+                    {/* Name Input */}
                     <div className={cn("space-y-2")}>
                       <div
                         className={cn(
-                          "flex items-center space-x-2 text-gray-500 text-sm mb-1",
+                          "flex items-center space-x-2 text-sky-600 text-sm mb-1 font-medium",
                         )}
                       >
-                        <User className={cn("w-4 h-4")} />
+                        <User className={cn("w-4 h-4 text-sky-500")} />
                         <label htmlFor="guest-name">{t("wishes.nameLabel")}</label>
                       </div>
                       <input
@@ -593,14 +587,16 @@ export default function Wishes() {
                         }}
                         disabled={isNameFromInvitation}
                         className={cn(
-                          "w-full px-4 py-2.5 rounded-xl border transition-all duration-200 text-gray-700 placeholder-gray-400",
+                          "w-full px-4 py-2.5 rounded-xl border transition-all duration-200 text-sky-800 placeholder-sky-400",
                           isNameFromInvitation
-                            ? "bg-gray-100 border-gray-200 cursor-not-allowed opacity-75"
-                            : "bg-white/50 border-rose-100 focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50",
+                            ? "bg-sky-50/50 border-sky-200 cursor-not-allowed opacity-80"
+                            : "bg-white/70 border-sky-200 focus:border-sky-400 focus:ring focus:ring-sky-200 focus:ring-opacity-50",
                         )}
                         required
                       />
                     </div>
+
+                    {/* Attendance Dropdown */}
                     <motion.div
                       variants={fadeUp}
                       initial="hidden"
@@ -610,10 +606,10 @@ export default function Wishes() {
                     >
                       <div
                         className={cn(
-                          "flex items-center space-x-2 text-gray-500 text-sm mb-1",
+                          "flex items-center space-x-2 text-sky-600 text-sm mb-1 font-medium",
                         )}
                       >
-                        <Calendar className={cn("w-4 h-4")} />
+                        <Calendar className={cn("w-4 h-4 text-sky-500")} />
                         <label htmlFor="attendance-select">
                           {t("wishes.attendanceLabel")}
                         </label>
@@ -644,12 +640,12 @@ export default function Wishes() {
                         aria-expanded={isOpen}
                         aria-controls="attendance-dropdown"
                         className={cn(
-                          "w-full px-4 py-2.5 rounded-xl bg-white/50 border border-rose-100 focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50 transition-all duration-200 text-left flex items-center justify-between",
+                          "w-full px-4 py-2.5 rounded-xl bg-white/70 border border-sky-200 focus:border-sky-400 focus:ring focus:ring-sky-200 focus:ring-opacity-50 transition-all duration-200 text-left flex items-center justify-between",
                         )}
                       >
                         <span
                           className={
-                            attendance ? "text-gray-700" : "text-gray-400"
+                            attendance ? "text-sky-800 font-medium" : "text-sky-400"
                           }
                         >
                           {attendance
@@ -659,7 +655,7 @@ export default function Wishes() {
                         </span>
                         <ChevronDown
                           className={cn(
-                            "w-5 h-5 text-gray-400 transition-transform duration-200",
+                            "w-5 h-5 text-sky-500 transition-transform duration-200",
                             isOpen ? "transform rotate-180" : "",
                           )}
                         />
@@ -675,7 +671,7 @@ export default function Wishes() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             className={cn(
-                              "absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-rose-100 overflow-hidden",
+                              "absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-sky-100 overflow-hidden",
                             )}
                           >
                             {options.map((option) => (
@@ -687,13 +683,13 @@ export default function Wishes() {
                                   setIsOpen(false);
                                 }}
                                 whileHover={{
-                                  backgroundColor: "rgb(255, 241, 242)",
+                                  backgroundColor: "rgb(240, 249, 255)",
                                 }}
                                 className={cn(
                                   "w-full px-4 py-2.5 text-left transition-colors",
                                   attendance === option.value
-                                    ? "bg-rose-50 text-rose-600"
-                                    : "text-gray-700 hover:bg-rose-50",
+                                    ? "bg-sky-50 text-sky-600 font-semibold"
+                                    : "text-sky-800 hover:bg-sky-50",
                                 )}
                               >
                                 {option.label}
@@ -703,14 +699,15 @@ export default function Wishes() {
                         )}
                       </AnimatePresence>
                     </motion.div>
+
                     {/* Wish Textarea */}
                     <div className={cn("space-y-2")}>
                       <div
                         className={cn(
-                          "flex items-center space-x-2 text-gray-500 text-sm mb-1",
+                          "flex items-center space-x-2 text-sky-600 text-sm mb-1 font-medium",
                         )}
                       >
-                        <MessageCircle className={cn("w-4 h-4")} />
+                        <MessageCircle className={cn("w-4 h-4 text-sky-500")} />
                         <label htmlFor="wish-message">{t("wishes.wishLabel")}</label>
                       </div>
                       <textarea
@@ -720,13 +717,14 @@ export default function Wishes() {
                         value={newWish}
                         onChange={(e) => setNewWish(e.target.value)}
                         className={cn(
-                          "w-full h-32 p-4 rounded-xl bg-white/50 border border-rose-100 focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50 resize-none transition-all duration-200",
+                          "w-full h-32 p-4 rounded-xl bg-white/70 border border-sky-200 focus:border-sky-400 focus:ring focus:ring-sky-200 focus:ring-opacity-50 resize-none transition-all duration-200 text-sky-800 placeholder-sky-400",
                         )}
                         required
                       />
                     </div>
                   </div>
-                  <div className={cn("flex items-center justify-between mt-4")}>
+
+                  <div className={cn("flex items-center justify-between mt-6")}>
                     <motion.button
                       type="submit"
                       disabled={createWishMutation.isPending}
@@ -737,10 +735,10 @@ export default function Wishes() {
                         scale: createWishMutation.isPending ? 1 : 0.98,
                       }}
                       className={cn(
-                        "w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-white font-medium transition-all duration-200",
+                        "w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-white font-medium shadow-md shadow-sky-500/20 transition-all duration-200",
                         createWishMutation.isPending
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-rose-500 hover:bg-rose-600",
+                          ? "bg-sky-300 cursor-not-allowed"
+                          : "bg-sky-500 hover:bg-sky-600",
                       )}
                     >
                       {createWishMutation.isPending ? (

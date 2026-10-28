@@ -1,0 +1,74 @@
+{
+  "app": {
+    "errorTitle": "Invitación no encontrada",
+    "errorDesc": "Por favor revisá el enlace o ponete en contacto con los novios.",
+    "preparing": "Preparando invitación..."
+  },
+  "nav": {
+    "home": "Inicio",
+    "event": "Fiesta",
+    "location": "Ubicación",
+    "gifts": "Regalos",
+    "wishes": "Mensajes"
+  },
+  "landing": {
+    "saveTheDate": "¡Nos Casamos!",
+    "openInvitation": "Abrir Invitación"
+  },
+  "hero": {
+    "marriageTitle": "¡Nos casamos y queremos festejarlo con vos!",
+    "guestGreeting": "Invitación especial para:",
+    "guestSalutation": "Querido/a invitado/a",
+    "guestFallback": "Invitado Especial",
+    "days": "Días",
+    "hours": "Horas",
+    "minutes": "Minutos",
+    "seconds": "Segundos"
+  },
+  "events": {
+    "saveTheDate": "¡Agendá la fecha!",
+    "title": "Itinerario de la Boda",
+    "subtitle": "Te esperamos para celebrar juntos este día tan soñado y dar inicio a una nueva etapa llena de amor.",
+    "addToCalendar": "Agregar al Calendario",
+    "googleCalendar": "Google Calendar",
+    "appleCalendar": "Apple Calendar",
+    "outlookCalendar": "Outlook Calendar"
+  },
+  "location": {
+    "eventVenue": "Lugar de la Celebración",
+    "title": "¿Dónde es?",
+    "viewMap": "Abrir en Google Maps"
+  },
+  "gifts": {
+    "subTitle": "Muestra de Cariño",
+    "title": "Mesa de Regalos",
+    "message": "Tu presencia es nuestro mejor regalo. Pero si querés hacernos un presente o colaborar con nuestra luna de miel, podés hacerlo por transferencia bancaria:",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "accountName": "Titular de la cuenta"
+  },
+  "wishes": {
+    "subTitle": "Dejanos tus felicitaciones y buenos deseos",
+    "title": "Libro de Mensajes",
+    "emptyState": "Todavía no hay mensajes. ¡Sé el primero en dejar una dedicatoria!",
+    "attending": "¡Sí, confirmo asistencia!",
+    "notAttending": "No voy a poder ir",
+    "maybe": "A confirmar",
+    "nameLabel": "Tu Nombre y Apellido",
+    "namePlaceholder": "Ingresá tu nombre...",
+    "attendanceLabel": "¿Confirmás tu asistencia?",
+    "attendancePlaceholder": "Seleccioná una opción...",
+    "wishLabel": "Tu Mensaje",
+    "wishPlaceholder": "Escribí tu mensaje o buenos deseos para Eva y Andrés...",
+    "sending": "Enviando mensaje...",
+    "sendButton": "Enviar Mensaje",
+    "thankYou": "¡Muchas Gracias!",
+    "successMessage": "Tu mensaje y confirmación fueron enviados con éxito. ¡Nos alegra inmensamente compartir este día con vos!",
+    "oneMessageLimit": "Cada invitado puede enviar un solo mensaje.",
+    "close": "Cerrar",
+    "failedLoad": "Error al cargar los mensajes",
+    "failedSubmit": "No se pudo enviar el mensaje. Por favor intentá nuevamente.",
+    "invitationNotFound": "Invitación no encontrada."
+  }
+}
+

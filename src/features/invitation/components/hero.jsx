@@ -16,7 +16,7 @@ import {
 
 export default function Hero() {
   const { t } = useTranslation();
-  const config = useConfig(); // Use hook to get config from API or fallback to static
+  const config = useConfig();
   const [guestName, setGuestName] = useState("");
   const reduceMotion = useReducedMotionFlag();
   const fade = useMotionPreset("fade");
@@ -33,7 +33,17 @@ export default function Hero() {
 
   const CountdownTimer = ({ targetDate }) => {
     const calculateTimeLeft = useCallback(() => {
-      const difference = +new Date(targetDate) - +new Date();
+      let targetTime;
+      if (typeof targetDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(targetDate)) {
+        const [year, month, day] = targetDate.split("-").map(Number);
+        const startTime = config?.agenda?.[0]?.startTime || "18:00";
+        const [hours, minutes] = startTime.split(":").map(Number);
+        targetTime = new Date(year, month - 1, day, hours || 18, minutes || 0, 0).getTime();
+      } else {
+        targetTime = +new Date(targetDate);
+      }
+
+      const difference = targetTime - Date.now();
       let timeLeft = {};
 
       if (difference > 0) {
@@ -65,13 +75,13 @@ export default function Hero() {
             initial="hidden"
             animate="visible"
             className={cn(
-              "flex flex-col items-center p-3 bg-white/80 backdrop-blur-sm rounded-xl border border-rose-100",
+              "flex flex-col items-center p-3 bg-white/85 backdrop-blur-sm rounded-xl border border-sky-100 shadow-sm",
             )}
           >
-            <span className={cn("text-xl sm:text-2xl font-bold text-rose-600")}>
-              {timeLeft[interval]}
+            <span className={cn("text-xl sm:text-2xl font-bold text-sky-600")}>
+              {timeLeft[interval] !== undefined ? timeLeft[interval] : 0}
             </span>
-            <span className={cn("text-xs text-gray-500 capitalize")}>
+            <span className={cn("text-xs text-sky-500 capitalize font-medium")}>
               {interval}
             </span>
           </motion.div>
@@ -86,10 +96,10 @@ export default function Hero() {
         size: Math.floor(Math.random() * 2) + 8,
         color:
           i % 3 === 0
-            ? "text-rose-400"
+            ? "text-sky-300"
             : i % 3 === 1
-              ? "text-pink-400"
-              : "text-red-400",
+              ? "text-sky-400"
+              : "text-sky-200",
         initialX:
           typeof window !== "undefined" ? Math.random() * window.innerWidth : 0,
         animateX:
@@ -150,12 +160,12 @@ export default function Hero() {
           variants={staggerContainer()}
           initial="hidden"
           animate="visible"
-          className={cn("space-y-6 relative z-10")}
+          className={cn("space-y-6 relative z-10 w-full max-w-md mx-auto")}
         >
           <motion.div variants={scaleIn} className={cn("inline-block mx-auto")}>
             <span
               className={cn(
-                "px-4 py-1 text-sm bg-rose-50 text-rose-600 rounded-full border border-rose-200",
+                "px-4 py-1 text-sm bg-sky-50 text-sky-600 rounded-full border border-sky-200 font-medium shadow-sm",
               )}
             >
               {t("landing.saveTheDate")}
@@ -166,7 +176,7 @@ export default function Hero() {
             <motion.p
               variants={fade}
               className={cn(
-                "text-gray-500 font-light italic text-base sm:text-lg",
+                "text-sky-600 font-light italic text-base sm:text-lg",
               )}
             >
               {t("hero.marriageTitle")}
@@ -174,26 +184,26 @@ export default function Hero() {
             <motion.h2
               variants={scaleIn}
               className={cn(
-                "text-3xl sm:text-5xl font-serif bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-pink-600",
+                "text-3xl sm:text-5xl font-serif text-sky-800 leading-tight",
               )}
             >
-              {config.groomName} & {config.brideName}
+              {config.brideName} & {config.groomName}
             </motion.h2>
           </div>
 
           <motion.div
             variants={fadeUp}
-            className={cn("relative max-w-md mx-auto")}
+            className={cn("relative max-w-md mx-auto w-full")}
           >
             <div
               className={cn(
-                "absolute inset-0 bg-gradient-to-b from-rose-50/50 to-white/50 backdrop-blur-md rounded-2xl",
+                "absolute inset-0 bg-gradient-to-b from-sky-50/70 to-white/70 backdrop-blur-md rounded-2xl",
               )}
             />
 
             <div
               className={cn(
-                "relative px-4 sm:px-8 py-8 sm:py-10 rounded-2xl border border-rose-100/50",
+                "relative px-4 sm:px-8 py-8 sm:py-10 rounded-2xl border border-sky-100 shadow-md",
               )}
             >
               <div
@@ -203,7 +213,7 @@ export default function Hero() {
               >
                 <div
                   className={cn(
-                    "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-rose-200 to-transparent",
+                    "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-sky-300 to-transparent",
                   )}
                 />
               </div>
@@ -214,10 +224,10 @@ export default function Hero() {
                     variants={fade}
                     className={cn("flex items-center justify-center space-x-2")}
                   >
-                    <Calendar className={cn("w-4 h-4 text-rose-400")} />
+                    <Calendar className={cn("w-4 h-4 text-sky-500")} />
                     <span
                       className={cn(
-                        "text-gray-700 font-medium text-sm sm:text-base",
+                        "text-sky-700 font-medium text-sm sm:text-base",
                       )}
                     >
                       {formatEventDate(config.date, "full")}
@@ -228,10 +238,10 @@ export default function Hero() {
                     variants={fade}
                     className={cn("flex items-center justify-center space-x-2")}
                   >
-                    <Clock className={cn("w-4 h-4 text-rose-400")} />
+                    <Clock className={cn("w-4 h-4 text-sky-500")} />
                     <span
                       className={cn(
-                        "text-gray-700 font-medium text-sm sm:text-base",
+                        "text-sky-700 font-medium text-sm sm:text-base",
                       )}
                     >
                       {config.time}
@@ -240,19 +250,19 @@ export default function Hero() {
                 </div>
 
                 <div className={cn("flex items-center justify-center gap-3")}>
-                  <div className={cn("h-px w-8 sm:w-12 bg-rose-200/50")} />
-                  <div className={cn("w-2 h-2 rounded-full bg-rose-200")} />
-                  <div className={cn("h-px w-8 sm:w-12 bg-rose-200/50")} />
+                  <div className={cn("h-px w-8 sm:w-12 bg-sky-200")} />
+                  <div className={cn("w-2 h-2 rounded-full bg-sky-400")} />
+                  <div className={cn("h-px w-8 sm:w-12 bg-sky-200")} />
                 </div>
 
                 <motion.div variants={fade} className={cn("space-y-2")}>
-                  <p className={cn("text-gray-500 font-serif italic text-sm")}>
+                  <p className={cn("text-sky-600 font-serif italic text-sm")}>
                     {t("hero.guestGreeting")}
                   </p>
-                  <p className={cn("text-gray-600 font-medium text-sm")}>
+                  <p className={cn("text-sky-600 font-medium text-sm")}>
                     {t("hero.guestSalutation")}
                   </p>
-                  <p className={cn("text-rose-500 font-semibold text-lg")}>
+                  <p className={cn("text-sky-800 font-semibold text-lg")}>
                     {guestName || t("hero.guestFallback")}
                   </p>
                 </motion.div>
@@ -265,7 +275,7 @@ export default function Hero() {
               >
                 <div
                   className={cn(
-                    "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-rose-200 to-transparent",
+                    "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-sky-300 to-transparent",
                   )}
                 />
               </div>
@@ -273,12 +283,12 @@ export default function Hero() {
 
             <div
               className={cn(
-                "absolute -top-2 -right-2 w-16 sm:w-24 h-16 sm:h-24 bg-rose-100/20 rounded-full blur-xl",
+                "absolute -top-2 -right-2 w-16 sm:w-24 h-16 sm:h-24 bg-sky-100/30 rounded-full blur-xl",
               )}
             />
             <div
               className={cn(
-                "absolute -bottom-2 -left-2 w-16 sm:w-24 h-16 sm:h-24 bg-rose-100/20 rounded-full blur-xl",
+                "absolute -bottom-2 -left-2 w-16 sm:w-24 h-16 sm:h-24 bg-sky-100/30 rounded-full blur-xl",
               )}
             />
           </motion.div>
@@ -308,7 +318,7 @@ export default function Hero() {
             >
               <Heart
                 className={cn(
-                  "w-10 sm:w-12 h-10 sm:h-12 text-rose-500 mx-auto",
+                  "w-10 sm:w-12 h-10 sm:h-12 text-sky-500 mx-auto",
                 )}
                 fill="currentColor"
               />

@@ -1,92 +1,77 @@
 const config = {
   data: {
-    // Main invitation title that appears on the page
-    title: "Pernikahan Fulan & Fulana",
-    // Opening message/description of the invitation
+    // Título principal de la invitación
+    title: "Casamiento de Eva y Andrés",
+    // Mensaje de bienvenida / descripción
     description:
-      "Kami akan menikah dan mengundang Anda untuk turut merayakan momen istimewa ini.", // Nanti ini dibikin random
-    // Groom's name
-    groomName: "Fulan",
-    // Bride's name
-    brideName: "Fulana",
-    // Groom's parents names
-    parentGroom: "Bapak Groom & Ibu Groom",
-    // Bride's parents names
-    parentBride: "Bapak Bride & Ibu Bride",
-    // Wedding date (format: YYYY-MM-DD)
-    date: "2024-12-24",
-    // Google Maps link for location (short clickable link)
-    maps_url: "https://goo.gl/maps/abcdef",
-    // Google Maps embed code to display map on website
-    // How to get: open Google Maps → select location → Share → Embed → copy link
+      "¡Nos casamos! Queremos invitarte a celebrar con nosotros este día tan especial.",
+    // Nombre del novio
+    groomName: "Andres Ignacio Rios",
+    // Nombre de la novia
+    brideName: "Eva Josefina Cruz",
+    // Padres del novio
+    parentGroom: "Padres del Novio",
+    // Padres de la novia
+    parentBride: "Padres de la Novia",
+    // Idioma por defecto
+    language: "es",
+    // Fecha de la boda (formato: YYYY-MM-DD)
+    date: "2026-11-20",
+    // Enlace de Google Maps para abrir la ubicación
+    maps_url: "https://maps.app.goo.gl/4NcZuhTac6BDtg8J7",
+    // Código embed de Google Maps para mostrar el mapa en la web
     maps_embed:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.0000000000005!2d106.8270733147699!3d-6.175392995514422!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f4f1b6d7b1e7%3A0x2e69f4f1b6d7b1e7!2sMonumen%20Nasional!5e0!3m2!1sid!2sid!4v1633666820004!5m2!1sid!2sid",
-    // Event time (free format, example: "10:00 - 12:00 WIB")
-    time: "16:16 - 17:30 WIB",
-    // Venue/building name
-    location: "Grand Ballroom, Hotel Majesty",
-    // Full address of the wedding venue
-    address: "Jl. Jend. Sudirman No.1, Jakarta",
-    // Image that appears when link is shared on social media
+      "https://maps.google.com/maps?q=-24.2407436,-65.2516236&hl=es&z=16&output=embed",
+    // Horario del evento
+    time: "12:00 hs",
+    // Nombre del lugar del civil
+    location: "Registro Civil Alto Comedero (Of. 2945)",
+    // Dirección completa
+    address: "Av. Forestal esq. Olimpia Barrionuevo, Alto Comedero, San Salvador de Jujuy",
+    // Imagen para compartir en redes
     ogImage: "",
-    // Icon that appears in browser tab
+    // Favicon
     favicon: "/favicon.svg",
-    // List of event agenda/schedule
+    // Itinerario y cronograma de los eventos
     agenda: [
       {
-        // First event name
-        title: "Akad Nikah",
-        // Event date (format: YYYY-MM-DD)
-        date: "2024-12-24",
-        // Start time (format: HH:MM)
-        startTime: "16:16",
-        // End time (format: HH:MM)
-        endTime: "17:30",
-        // Event venue
-        location: "Grand Ballroom, Hotel Majesty",
-        // Full address
-        address: "Jl. Jend. Sudirman No.1, Jakarta",
+        title: "Casamiento por Civil",
+        date: "2026-11-20",
+        startTime: "12:00",
+        endTime: "13:30",
+        location: "Registro Civil Alto Comedero (Of. 2945)",
+        address: "Av. Forestal esq. Olimpia Barrionuevo, Alto Comedero, San Salvador de Jujuy",
       },
       {
-        // Second event name
-        title: "Resepsi Nikah",
-        date: "2024-12-24",
-        startTime: "16:16",
-        endTime: "17:30",
-        location: "Grand Ballroom, Hotel Majesty",
-        address: "Jl. Jend. Sudirman No.1, Jakarta",
+        title: "Brindis y Festejo",
+        date: "2026-11-20",
+        startTime: "14:00",
+        endTime: "21:00",
+        location: "Brindis y Celebración Familiar",
+        address: "San Salvador de Jujuy, Jujuy",
       },
-      // You can add more agenda items with the same format
     ],
 
-    // Background music settings
+    // Música de fondo
     audio: {
-      // Music file (choose one or replace with your own file)
-      src: "/audio/fulfilling-humming.mp3", // or /audio/nature-sound.mp3
-      // Music title to display
-      title: "Fulfilling Humming", // or Nature Sound
-      // Whether music plays automatically when website opens
+      src: "/audio/fulfilling-humming.mp3",
+      title: "Música Romántica",
       autoplay: true,
-      // Whether music repeats continuously
       loop: true,
     },
 
-    // List of bank accounts for digital envelope/gifts
+    // Cuentas bancarias para regalos / transferencias
     banks: [
       {
-        // Bank name
-        bank: "Bank Central Asia",
-        // Account number
-        accountNumber: "1234567890",
-        // Account holder name (all uppercase)
-        accountName: "FULAN",
+        bank: "Banco Galicia",
+        accountNumber: "Alias: EVA.ANDRES.BODA (CBU: 0070123456789012345678)",
+        accountName: "EVA JOSEFINA CRUZ",
       },
       {
-        bank: "Bank Mandiri",
-        accountNumber: "0987654321",
-        accountName: "FULANA",
+        bank: "Mercado Pago",
+        accountNumber: "Alias: BODA.ANDRES.EVA (CVU: 0000003100012345678901)",
+        accountName: "ANDRES IGNACIO RIOS",
       },
-      // You can add more banks with the same format
     ],
   },
 };
